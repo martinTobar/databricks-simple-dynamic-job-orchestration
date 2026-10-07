@@ -1,0 +1,42 @@
+resources:
+  jobs:
+    if_else_job:
+      name: if else job
+      tasks:
+        - task_key: ifelse
+          condition_task:
+            left: '{{job.parameters.code}}'
+            op: NOT_EQUAL
+            right: CA
+          disabled: false
+          email_notifications: {}
+          run_if: ALL_SUCCESS
+          timeout_seconds: 0
+          webhook_notifications: {}
+        - task_key: print_state
+          depends_on:
+            - outcome: "true"
+              task_key: ifelse
+          disabled: false
+          email_notifications: {}
+          notebook_task:
+            base_parameters:
+              state: '{{job.parameters.state}}'
+            notebook_path: ../src/print_state_data.ipynb
+            source: WORKSPACE
+          run_if: ALL_SUCCESS
+          timeout_seconds: 0
+          webhook_notifications: {}
+      parameters:
+        - name: code
+          default: '{}'
+        - name: state
+          default: NO_STATE
+      email_notifications:
+        no_alert_for_skipped_runs: false
+      max_concurrent_runs: 1
+      performance_target: PERFORMANCE_OPTIMIZED
+      queue:
+        enabled: true
+      timeout_seconds: 0
+      webhook_notifications: {}
